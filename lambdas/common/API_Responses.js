@@ -1,3 +1,5 @@
+// Manages the APIGateway Responses creation, return objects with the correct status and body
+
 const Responses = {
   _DefineResponse(statusCode = 502, data = {}) {
     return {

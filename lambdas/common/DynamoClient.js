@@ -1,6 +1,10 @@
+// The DynamoDB Client
+
 const AWS = require("aws-sdk");
 
 let options = {};
+
+// Offline Configuration
 if (process.env.IS_OFFLINE) {
   options = {
     region: "localhost",
@@ -8,6 +12,7 @@ if (process.env.IS_OFFLINE) {
   };
 }
 
+// Jest Testing Configuration
 if (process.env.JEST_WORKER_ID) {
   options = {
     region: "local-dev",
@@ -17,6 +22,7 @@ if (process.env.JEST_WORKER_ID) {
 }
 const dynamoClient = new AWS.DynamoDB.DocumentClient(options);
 
+// Contracts Model CRUD Service
 const contractsModel = {
   async getALL(TableName) {
     const data = await dynamoClient.scan({ TableName }).promise();

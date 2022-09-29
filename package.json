@@ -2,6 +2,10 @@
   "type": "commonjs",
   "name": "contracts-manager",
   "version": "1.0.0",
+  "scripts": {
+    "start-offline": "sls offline start --stage dev",
+    "test-offline": "jest"
+  },
   "dependencies": {
     "aws-sdk": "^2.1225.0",
     "uuid": "^9.0.0"
