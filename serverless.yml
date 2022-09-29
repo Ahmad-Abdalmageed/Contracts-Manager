@@ -1,0 +1,105 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: contracts-manager
+# app and org for use with dashboard.serverless.com
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+
+custom:
+  tableName: contracts
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      migration:
+        dir: offline/migration
+  webpack:
+    webpackConfig: ./webpack.config.js # Name of webpack configuration file
+    includeModules:
+      packagePath: '../package.json'  # Node modules configuration for packaging
+    packager: 'npm' # Packager that will be used to package your external modules
+    excludeFiles: ./**/*.test.js # Provide a glob for files to ignore
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  stage: dev
+  httpApi:
+    cors: true
+  environment:
+    tableName: ${self:custom.tableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: '*'
+
+# you can add packaging information here
+#package:
+#  patterns:
+#    - '!exclude-me.js'
+#    - '!exclude-me-dir/**'
+#    - include-me.js
+#    - include-me-dir/**
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-webpack
+  - serverless-offline
+
+package:
+  individually: true
+
+functions:
+  getContractsIDs:
+    handler: ./lambdas/endpoints/getContractsIDs.handler
+    events:
+      - httpApi:
+          path: /getContractsIDs
+          method: GET
+  getContract:
+    handler: ./lambdas/endpoints/getContract.handler
+    events:
+      - httpApi:
+          path: /getContract/{id}
+          method: GET
+  createContract:
+    handler: ./lambdas/endpoints/createContract.handler
+    events:
+      - httpApi:
+          path: /createContract
+          method: POST
+
+# you can add CloudFormation resource templates here
+resources:
+  Resources:
+    contractsDynamoDB:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: contractID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: contractID
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
